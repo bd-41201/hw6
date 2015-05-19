@@ -14,3 +14,16 @@ data(congress109)
 # district that voted for George Bush in 2004, cs1, cs2 => show a
 # measure of how strongly a given representative votes along party lines
 
+## Q1 - Fit K -means to speech text for K in 5,10,15,20,25. Use BIC to
+## choose the K and interpret the selected model.
+
+# Following the w8there example, we scale the counts by computing the
+# frequency they appear relative to the average.
+cong.counts.scaled <- scale(as.matrix( congress109Counts/rowSums(congress109Counts) ))
+
+# Compute k-means for 5,10,15,20,25 groups
+kfit.ccs <- lapply(c(5,10,15,20,25), function(k) kmeans(cong.counts.scaled,k))
+
+# Use the kIC script to choose the appropriate # of clusters
+source("../Utility Scripts/kIC.R")
+kbic.ccs <- sapply(kfit.ccs,kIC,"B")
