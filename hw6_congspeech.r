@@ -57,6 +57,8 @@ pie(kfit.ccs.5c.slices,labels = lbls, col=rainbow(length(lbls)),
     main="Share of Representatives by Cluster",clockwise=TRUE,cex=0.75)
 
 cluster4 <- kfit.ccs.5c$cluster[kfit.ccs.5c$cluster==4]
+cong.109.repub <- congress109Ideology[congress109Ideology$party=="R",]
+head(cong.109.repub)
 
 ## Q2
 # Bring in the topic maps
