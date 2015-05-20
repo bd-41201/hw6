@@ -31,18 +31,32 @@ kbic.ccs <- sapply(kfit.ccs,kIC,"B")
 # Let's plot to see what it looks like
 kaicc.ccs <- sapply(kfit.ccs,kIC)
 ## plot 'em
+# png('aic_bic_vs_k.png')
 plot(c(5,10,15,20,25),kaicc.ccs, xlab="K", ylab="IC",
-  ylim=range(c(kaicc.ccs,kbic.ccs)),xlim=c(5,25),
+  main="IC vs Number of clusters (K)",ylim=range(c(kaicc.ccs,kbic.ccs)),xlim=c(5,25),
   bty="n", type="l", lwd=2)
 abline(v=which.min(kaicc.ccs)*5,lty=2)
 lines(c(5,10,15,20,25),kbic.ccs, col=4, lwd=2)
 abline(v=which.min(kbic.ccs)*5,col=4,lty=2)
 legend(6,600000,c("AICc","AICc Min","BIC","BIC Min"),lty=c(1,2,1,2),col=c("black","black","blue","blue"))
+# dev.off()
 # Not a good picture as aicc appears to select a very complex model with
 # >25 clusters and bic looks to select potentially no models at all.
 
 # Within the bounds of this problem, we use BIC to select 5 clusters.
-summary(kfit.ccs[1])
+kfit.ccs.5c <- kfit.ccs[[1]]
+kfit.ccs.5c.slices <- unlist(lapply(1:5, function(x) length(kfit.ccs.5c$cluster[kfit.ccs.5c$cluster==x])))
+
+lbls <- c("Cluster 1 - ", "Cluster 2 - ", "Cluster 3 - ", "Cluster 4 - ", "Cluster 5 - ")
+pct <- round(kfit.ccs.5c.slices/sum(kfit.ccs.5c.slices)*100)
+lbls <- paste(lbls, kfit.ccs.5c.slices)
+lbls <- paste(lbls, " (")
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%)",sep="") # ad % to labels
+pie(kfit.ccs.5c.slices,labels = lbls, col=rainbow(length(lbls)),
+    main="Share of Representatives by Cluster",clockwise=TRUE,cex=0.75)
+
+cluster4 <- kfit.ccs.5c$cluster[kfit.ccs.5c$cluster==4]
 
 ## Q2
 # Bring in the topic maps
