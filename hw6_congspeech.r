@@ -44,4 +44,22 @@ legend(6,600000,c("AICc","AICc Min","BIC","BIC Min"),lty=c(1,2,1,2),col=c("black
 # Within the bounds of this problem, we use BIC to select 5 clusters.
 summary(kfit.ccs[1])
 
+## Q2
+# Bring in the topic maps
+library(maptpx)
+
+c109.stm <- as.simple_triplet_matrix(congress109Counts)
+c109.tpcs <- topics(c109.stm,K=5*(1:5), verb=10)
+# Bayes factor is maximized at K=10 so we select that for our topic model
+
+# Print the most frequently used words by topic
+lapply(1:10, function(x) rownames(c109.tpcs$theta)[order(c109.tpcs$theta[,x], decreasing=TRUE)[1:10]])
+
+# Show a word cloud to visualize common words from each topic
+par(mfrow=c(1,2))
+wordcloud(row.names(c109.tpcs$theta),
+  freq=c109.tpcs$theta[,1], min.freq=0.006, col="maroon")
+wordcloud(row.names(c109.tpcs$theta),
+  freq=c109.tpcs$theta[,2], min.freq=0.006, col="navy")
+
 
