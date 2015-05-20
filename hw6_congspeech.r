@@ -27,3 +27,21 @@ kfit.ccs <- lapply(c(5,10,15,20,25), function(k) kmeans(cong.counts.scaled,k))
 # Use the kIC script to choose the appropriate # of clusters
 source("../Utility Scripts/kIC.R")
 kbic.ccs <- sapply(kfit.ccs,kIC,"B")
+
+# Let's plot to see what it looks like
+kaicc.ccs <- sapply(kfit.ccs,kIC)
+## plot 'em
+plot(c(5,10,15,20,25),kaicc.ccs, xlab="K", ylab="IC",
+  ylim=range(c(kaicc.ccs,kbic.ccs)),xlim=c(5,25),
+  bty="n", type="l", lwd=2)
+abline(v=which.min(kaicc.ccs)*5,lty=2)
+lines(c(5,10,15,20,25),kbic.ccs, col=4, lwd=2)
+abline(v=which.min(kbic.ccs)*5,col=4,lty=2)
+legend(6,600000,c("AICc","AICc Min","BIC","BIC Min"),lty=c(1,2,1,2),col=c("black","black","blue","blue"))
+# Not a good picture as aicc appears to select a very complex model with
+# >25 clusters and bic looks to select potentially no models at all.
+
+# Within the bounds of this problem, we use BIC to select 5 clusters.
+summary(kfit.ccs[1])
+
+
