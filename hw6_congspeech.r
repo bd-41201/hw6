@@ -22,6 +22,7 @@ data(congress109)
 cong.counts.scaled <- scale(as.matrix( congress109Counts/rowSums(congress109Counts) ))
 
 # Compute k-means for 5,10,15,20,25 groups
+set.seed(823)
 kfit.ccs <- lapply(c(5,10,15,20,25), function(k) kmeans(cong.counts.scaled,k))
 
 # Use the kIC script to choose the appropriate # of clusters
@@ -56,23 +57,34 @@ lbls <- paste(lbls,"%)",sep="") # ad % to labels
 pie(kfit.ccs.5c.slices,labels = lbls, col=rainbow(length(lbls)),
     main="Share of Representatives by Cluster",clockwise=TRUE,cex=0.75)
 
-cluster4 <- kfit.ccs.5c$cluster[kfit.ccs.5c$cluster==4]
-cong.109.repub <- congress109Ideology[congress109Ideology$party=="R",]
-head(cong.109.repub)
+tapply(congress109Ideology$party,kfit.ccs.5c$cluster,table)
+# So about 2/3 of cluster 4 are republican and the rest are democrat
+
+# Let's try to get a plot like something we have seen in class showing
+# reps plotted in two dimensions and color coded by cluster.
+# png('cluster_plot.png')
+plot(congress109Ideology$repshare, congress109Ideology$cs1,col=rainbow(5)[kfit.ccs.5c$cluster],type="n",
+  main="Share of District Voting for George Bush in 2004 vs\n Voting Record of Representative",xlab="Share for George Bush",ylab="Voting Record")
+text(congress109Ideology$repshare, congress109Ideology$cs1, labels=congress109Ideology$party, col=rainbow(5)[kfit.ccs.5c$cluster])
+legend(0.1,0.8,c("Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5"),lty=c(1,1,1,1,1),col=rainbow(5))
+# dev.off()
+
+cluster4.centers <- kfit.ccs.5c$centers[4,]
+cluster4.centers.ordered <- cluster4.centers[order(cluster4.centers,decreasing=TRUE)]
 
 ## Q2
 # Bring in the topic maps
 library(maptpx)
 
 c109.stm <- as.simple_triplet_matrix(congress109Counts)
-c109.tpcs <- topics(c109.stm,K=5*(1:5), verb=10)
+c109.tpcs <- topics(c109.stm,K=5*(1:5), verb=1)
 # Bayes factor is maximized at K=10 so we select that for our topic model
 
 # Print the most frequently used words by topic
 lapply(1:10, function(x) rownames(c109.tpcs$theta)[order(c109.tpcs$theta[,x], decreasing=TRUE)[1:10]])
 
 # Show a word cloud to visualize common words from each topic
-par(mfrow=c(1,2))
+library(wordcloud)
 wordcloud(row.names(c109.tpcs$theta),
   freq=c109.tpcs$theta[,1], min.freq=0.006, col="maroon")
 wordcloud(row.names(c109.tpcs$theta),
